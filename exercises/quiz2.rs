@@ -28,7 +28,7 @@ mod my_module {
     // how would I use it?
     // use std::{collections::HashMap, slice::range};
 
-    use Command;
+    use super::Command;
 
     // TODO: Complete the function signature!
     pub fn transformer(input: Vec<(String, Command)>) -> Vec<String> {
@@ -51,8 +51,8 @@ mod my_module {
 #[cfg(test)]
 mod tests {
     // TODO: What do we need to import to have `transformer` in scope?
-    use my_module::transformer as transformer;
-    use Command;
+    use crate::my_module::transformer as transformer;
+    use super::Command;
 
     #[test]
     fn it_works() {
