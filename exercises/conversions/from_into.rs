@@ -39,6 +39,29 @@ impl Default for Person {
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        // empty input string
+        if s.is_empty() {
+            Person::default()
+        } else if s.contains(",") {
+            let result = s.split_once(",").unwrap();
+            // there is a comma but nothing after
+            if result.1.is_empty() {
+                Person::default()
+            } else {
+                let num = result.1.parse::<usize>();
+                let name = result.0;
+                if num.is_err() || name.is_empty() {
+                    Person::default()
+                } else {
+                    Person {
+                        name: name.to_string(),
+                        age: num.unwrap(),
+                    }
+                }
+            }
+        } else {
+            Person::default()
+        }
     }
 }
 
