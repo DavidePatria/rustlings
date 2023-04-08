@@ -23,8 +23,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
-
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
 // You need to create an implementation for a tuple of three integers,
@@ -34,25 +32,72 @@ enum IntoColorError {
 // but the slice implementation needs to check the slice length!
 // Also note that correct RGB color values must be integers in the 0..=255 range.
 
+fn check(val: &i16) -> bool {
+    if val.is_negative() || val.gt(&(u8::MAX as i16)) {
+        true
+    } else {
+        false
+    }
+}
+
 // Tuple implementation
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        if check(&tuple.0) || check(&tuple.1) || check(&tuple.2) {
+            Err(IntoColorError::IntConversion)
+        } else {
+            Ok(Color {
+                red: (tuple.0 as u8),
+                green: (tuple.1 as u8),
+                blue: (tuple.2 as u8),
+            })
+        }
     }
 }
 
-// Array implementation
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
-        arr.iter().map(|a| a.partial_cmp)
+        let over: Vec<_> = arr
+            .iter()
+            .filter(|&a| a.lt(&(u8::MAX as i16)) && a.is_positive())
+            // .filter(|&a| a.gt(&0))
+            .collect();
+        // if the filter did not get 3 elements then at least one is too big
+        if over.len() != 3 {
+            Err(IntoColorError::IntConversion)
+        } else {
+            Ok(Color {
+                red: *over[0] as u8,
+                green: *over[1] as u8,
+                blue: *over[2] as u8,
+            })
+        }
     }
 }
-
-// Slice implementation
+//
+// // Slice implementation
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+        let over: Vec<_> = slice
+            .iter()
+            .filter(|&a| a.lt(&(u8::MAX as i16)) && a.is_positive())
+            .collect();
+        println!("{}", over.len());
+        if over.len() != 3 {
+            Err(IntoColorError::IntConversion)
+        } else {
+            Ok(Color {
+                red: *over[0] as u8,
+                green: *over[1] as u8,
+                blue: *over[2] as u8,
+            })
+        }
     }
 }
 
@@ -71,7 +116,7 @@ fn main() {
     println!("{:?}", c3);
     // or take slice within round brackets and use TryInto
     let c4: Result<Color, _> = (&v[..]).try_into();
-    println!("{:?}", c4);
+    // println!("{:?}", c4);
 }
 
 #[cfg(test)]
